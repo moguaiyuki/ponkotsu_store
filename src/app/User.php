@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    protected $guarded = [];
+    // protected $guarded = []
     protected $attributes = [
         'admin' => False,
+    ];
+    protected $fillable = [
+        'name',
+        'email',
+        'password'
     ];
 }
