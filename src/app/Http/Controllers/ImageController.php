@@ -16,6 +16,9 @@ class ImageController extends Controller
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse 画像のバイナリファイル
      */
     public function index(Request $request){
+        if (0 === strpos($request->input('file'), '.')) {
+            return response()->json(['message' => 'どこ見てんのよ！！'], 404);
+        }
         $path = public_path() . "/storage/". $request->input('file');
         if(!file_exists($path)){
             return response()->json(['message' => 'ファイルが存在しません'], 404);
