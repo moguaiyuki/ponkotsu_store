@@ -45,6 +45,8 @@ class CreateController extends Controller
             // ここで一旦生のパスワードでユーザ生成してるの問題では？
             // $user = new User($request->all());
 
+            // Userを作るときのプロパティをname, email, passwordに限定する
+            // ハッシュ化したパスワードを使う
             $user = new User([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -76,6 +78,6 @@ class CreateController extends Controller
             return response()->json(['message' => 'そのメールアドレスまたはユーザー名が存在しています。'], 400);
         }
 
-        return response()->json([]);
+        return response()->json($user);
     }
 }
