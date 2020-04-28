@@ -10,6 +10,7 @@ use Log;
 use App\User;
 use App\Good;
 use App\History;
+use App\Coupon;
 
 class BuyController extends Controller
 {    
@@ -77,8 +78,20 @@ class BuyController extends Controller
             if(!ctype_digit($count) || $count == 0 ) {
                 return response()->json(['status' => false, 'message' => '個数が不正です']);
             }
+
             $user = User::where('id', $userId)->firstOrFail();
             $good = Good::where('id', $goodId)->firstOrFail();
+
+            // クーポンチェック
+            // クーポンにdiscountが存在していない場合はエラー
+            // 本来はユーザ単位に持たせるべきなんだろうけどそうなっていないので多分これでよい
+            if($discount != 0) {
+                $coupon = Coupon::where('discount', $discount)->firstOrFail();
+                if(is_null($coupon)) {
+                    return response()->json(['status' => false, 'message' => 'クーポンがありません']);
+                }
+            }
+
             $price = $this->calc($good->price, $count, $discount);
             if ($user->balance < $price) {
                 return response()->json(['status' => false, 'message' => '残高が不足しています']);
