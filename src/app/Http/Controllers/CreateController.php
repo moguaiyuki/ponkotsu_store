@@ -78,6 +78,6 @@ class CreateController extends Controller
             return response()->json(['message' => 'そのメールアドレスまたはユーザー名が存在しています。'], 400);
         }
 
-        return response()->json($user);
+        return response()->json([]);
     }
 }
