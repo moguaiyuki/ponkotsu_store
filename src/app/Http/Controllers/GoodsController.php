@@ -138,6 +138,12 @@ class GoodsController extends Controller
                     break;
                 }
             }
+            // reviewのフィルタ処理
+            unset($review['email']);
+            unset($review['password']);
+            unset($review['admin']);
+            unset($review['balance']);
+            unset($review['coupons']);
         }
         return response()->json(['id' => $good->id, 'title' => $good->title, 'desc' => $good->description, 'thumbnail' => $good->thumbnail, 'price' => $good->price, 'reviews' => $reviews]);
     }
