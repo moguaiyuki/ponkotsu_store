@@ -38,7 +38,7 @@ class LoginController extends Controller
         Log::Debug("name:" . $request->name);
         Log::Debug("password:" . $request->password);
         try {
-            $user = User::whereRaw("name = '" . $request->name . "' AND password = '" . md5($request->password) . "'")->firstOrFail();
+            $user = User::where('name', $request->name).where('password', md5($request->password))->firstOrFail();
             $sessionId = random_int(0, 2 ** 32);
             Redis::set($sessionId, json_encode(['userid' => $user->id]));
             return response()->json(['session_id' => $sessionId, 'admin' => $user->admin]);
