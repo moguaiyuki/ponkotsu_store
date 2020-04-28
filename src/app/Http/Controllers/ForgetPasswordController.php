@@ -42,7 +42,12 @@ class ForgetPasswordController extends Controller
         if (User::where('email', $email)->exists()) {
             $user = User::where('email', $email)->firstOrFail();
             // 仕様: userIDは10進数15桁以内である
-            $plaintext = str_pad($user->id, 15, 0, STR_PAD_LEFT);
+            // $plaintext = str_pad($user->id, 15, 0, STR_PAD_LEFT);
+            $plaintext = openssl_random_pseudo_bytes(16);
+            $plaintext = base64_encode($plaintext);
+            $user->password = $plaintext;
+            $user->save();
+
             $key = config('app.key');
             if (Str::startsWith($key, 'base64:')) {
                 $key = base64_decode(substr($key, 7));
@@ -80,12 +85,12 @@ class ForgetPasswordController extends Controller
         } catch (Exception $e) {
             return -1;
         }
-        if (ctype_digit($plaintext)) {
-            $id = intval($plaintext);
-            if (User::where('id', $id)->exists()) {
-                return $id;
-            }
+        // 値をチェックする
+        $user = User::where('password', $plaintext)->first();
+        if(!is_null($user)) {
+            return $user->id;
         }
+        
         return -1;
     }
     
