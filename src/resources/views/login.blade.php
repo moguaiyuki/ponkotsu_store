@@ -1,6 +1,6 @@
 @extends('layouts.vue_app')
 
-@section('title', 'ログインページ')
+@section('title', 'ストアログインページ')
 @section('content')
 <div id="app">
     <login-component></login-component>

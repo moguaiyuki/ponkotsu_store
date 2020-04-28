@@ -56,10 +56,27 @@ class BuyController extends Controller
     {
         return DB::transaction(function () use ($request) {
             $userId = $request->input('id');
-
             $goodId = $request->input('good_id');
             $count = $request->input('count');
             $discount = $request->input('discount');
+
+            // クッキーのsession id値をチェック
+            $sessionId = $request->cookie('session_id');
+            if (is_null($sessionId)) {
+                return redirect('login');
+            }
+            $session = Redis::get($sessionId);
+            if (!$session) {
+                return redirect('login');
+            }
+            // session id と idが一致するかどうかチェック
+            if($userId != json_decode($session)->userid) {
+                return response()->json(['status' => false, 'message' => '不正な操作です']);
+            }
+            // 購入個数は正の整数(0を除く)でなければならない
+            if(!ctype_digit($count) || $count == 0 ) {
+                return response()->json(['status' => false, 'message' => '個数が不正です']);
+            }
             $user = User::where('id', $userId)->firstOrFail();
             $good = Good::where('id', $goodId)->firstOrFail();
             $price = $this->calc($good->price, $count, $discount);
