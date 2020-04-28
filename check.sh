@@ -1,8 +1,8 @@
 # ちゃんと更新されたか確認するためのコード
 # メイン
-# EP="http://34.84.74.173/api"
+EP="http://34.84.74.173/api"
 # ローカル
-EP="http://localhost/api"
+# EP="http://localhost/api"
 
 echo "ログイン"
 SESSION_ID=`curl -s -X POST -H "Content-Type: application/json" -d '{"name": "kurenaif", "password": "password"}' "$EP/login" | jq .session_id`
