@@ -32,19 +32,38 @@ class CreateController extends Controller
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // adminパラメータが空の場合0を代入
+        $inputs = [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+            'admin' => $request->input('admin', 0),
+        ];
+        // adminパラメータに入る値が0であることを確認
+        $rules = [
             'name' => 'required', 
             'email' => 'required|email', 
             'password' => 'required',
-        ]);
+            'admin' => 0,
+        ];
+
+        $validator = Validator::make($inputs, $rules);
         if ($validator->fails()) {
             return response()->json(['message' => 'リクエストが不正です'], 400);
         }
 
         try {
-            $user = new User($request->all());
+            // ここで一旦生のパスワードでユーザ生成してるの問題では？
+            // $user = new User($request->all());
+
+            $hashed_password = md5($user->password);
+            $user = new User([
+                $inputs->name,
+                $inputs->email,
+                $hashed_password,
+            ]);
             $user->balance = 100000;
-            $user->password = md5($user->password);
+            // $user->password = md5($user->password);
             $user->coupons = serialize([1]);
             $user->icon = null;
             $user->email = mb_strtolower($user->email);
