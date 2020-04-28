@@ -7,7 +7,7 @@
           <v-row wrap>
             <v-col cols="12" sm="12" md="6" lg="6" xl="6">
               <v-layout justify-center>
-              <v-img v-if="thumbnail" width=512 :src="thumbnail"></v-img>
+                <v-img v-if="thumbnail" width="512" :src="thumbnail"></v-img>
               </v-layout>
             </v-col>
             <v-col cols="12" sm="12" md="6" lg="6" xl="6">
@@ -62,8 +62,11 @@
                     <v-list-item-content>
                       <div class="overline mb-4">{{ review.name + " " + review.updated_at }}</div>
                       <v-rating v-model="review.rating" :readonly="true"></v-rating>
-                      <div v-html="review.message"></div>
-                      <v-img v-if="review.ogImageUrl" :src="`data:image;base64,${review.ogImageUrl}`" />
+                      <div>{{review.message}}</div>
+                      <v-img
+                        v-if="review.ogImageUrl"
+                        :src="`data:image;base64,${review.ogImageUrl}`"
+                      />
                       <div v-html="review.ogTitle"></div>
                     </v-list-item-content>
 
