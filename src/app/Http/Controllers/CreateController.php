@@ -42,9 +42,17 @@ class CreateController extends Controller
         }
 
         try {
-            $user = new User($request->all());
+            // ここで一旦生のパスワードでユーザ生成してるの問題では？
+            // $user = new User($request->all());
+
+            // Userを作るときのプロパティをname, email, passwordに限定する
+            // ハッシュ化したパスワードを使う
+            $user = new User([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => md5($request->password),
+            ]);
             $user->balance = 100000;
-            $user->password = md5($user->password);
             $user->coupons = serialize([1]);
             $user->icon = null;
             $user->email = mb_strtolower($user->email);

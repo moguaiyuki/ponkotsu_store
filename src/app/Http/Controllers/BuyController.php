@@ -10,6 +10,7 @@ use Log;
 use App\User;
 use App\Good;
 use App\History;
+use App\Coupon;
 
 class BuyController extends Controller
 {    
@@ -56,12 +57,41 @@ class BuyController extends Controller
     {
         return DB::transaction(function () use ($request) {
             $userId = $request->input('id');
-
             $goodId = $request->input('good_id');
             $count = $request->input('count');
             $discount = $request->input('discount');
+
+            // クッキーのsession id値をチェック
+            $sessionId = $request->cookie('session_id');
+            if (is_null($sessionId)) {
+                return redirect('login');
+            }
+            $session = Redis::get($sessionId);
+            if (!$session) {
+                return redirect('login');
+            }
+            // session id と idが一致するかどうかチェック
+            if($userId != json_decode($session)->userid) {
+                return response()->json(['status' => false, 'message' => '不正な操作です']);
+            }
+            // 購入個数は正の整数(0を除く)でなければならない
+            if(!ctype_digit($count) || $count == 0 ) {
+                return response()->json(['status' => false, 'message' => '個数が不正です']);
+            }
+
             $user = User::where('id', $userId)->firstOrFail();
             $good = Good::where('id', $goodId)->firstOrFail();
+
+            // クーポンチェック
+            // クーポンにdiscountが存在していない場合はエラー
+            // 本来はユーザ単位に持たせるべきなんだろうけどそうなっていないので多分これでよい
+            if($discount != 0) {
+                $coupon = Coupon::where('discount', $discount)->firstOrFail();
+                if(is_null($coupon)) {
+                    return response()->json(['status' => false, 'message' => 'クーポンがありません']);
+                }
+            }
+
             $price = $this->calc($good->price, $count, $discount);
             if ($user->balance < $price) {
                 return response()->json(['status' => false, 'message' => '残高が不足しています']);

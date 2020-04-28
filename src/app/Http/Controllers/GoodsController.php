@@ -57,9 +57,13 @@ class GoodsController extends Controller
      * @return \Illuminate\Http\JsonResponse {商品のリスト}
      */
     public function search(Request $request)
-    {
-        $goods = Good::where("title", "LIKE", "%" . $request->keyword . "%")->select('id', 'thumbnail', 'price', 'title', 'description')->orderByRaw("price " . $request->ord)->get();
-        return response()->json(['goods' => $goods]);
+    {   
+        // 順序はascとdescしかないのでこの2つが入っていたとき
+        $ord_options = array("asc", "desc");
+        if (in_array($request->ord, $ord_options)) {
+            $goods = Good::where("title", "LIKE", "%" . $request->keyword . "%")->select('id', 'thumbnail', 'price', 'title', 'description')->orderBy("price", $request->ord)->get();
+            return response()->json(['goods' => $goods]);
+        }
     }
     
     /**
@@ -138,6 +142,12 @@ class GoodsController extends Controller
                     break;
                 }
             }
+            // reviewのフィルタ処理
+            unset($review['email']);
+            unset($review['password']);
+            unset($review['admin']);
+            unset($review['balance']);
+            unset($review['coupons']);
         }
         return response()->json(['id' => $good->id, 'title' => $good->title, 'desc' => $good->description, 'thumbnail' => $good->thumbnail, 'price' => $good->price, 'reviews' => $reviews]);
     }
